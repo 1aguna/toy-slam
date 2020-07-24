@@ -1,9 +1,4 @@
 import os
-import sys
-import csv
-import copy
-import time
-import random
 import argparse
 
 # Parse arguments
