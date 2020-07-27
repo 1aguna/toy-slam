@@ -15,4 +15,3 @@ if args.color:      # color images
     img_dir = os.path.join(args.dir, "image_02", "data")
 else:               # black and white images
     img_dir = os.path.join(args.dir, "image_00", "data")
-

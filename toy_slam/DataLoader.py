@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 
-class DataManager:
+class DataLoader:
 
     def __init__(self, data_path, idx=0, show_img=False, color=False):
         """

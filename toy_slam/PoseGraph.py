@@ -2,7 +2,7 @@ import numpy as np
 import g2o
 
 
-class PoseGraphOpt(g2o.SparseOptimizer):
+class PoseGraph(g2o.SparseOptimizer):
     def __init__(self):
         super().__init__()
         solver = g2o.BlockSolverSE3(g2o.LinearSolverCholmodSE3())

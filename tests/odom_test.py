@@ -1,6 +1,6 @@
 import numpy as np
 import time
-from toy_slam.utils import odometry as odom
+import icp as odom
 
 # Constants
 N = 10  # number of random points in the dataset
