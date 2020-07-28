@@ -5,8 +5,8 @@ This project is a toy implementation of LiDAR Slam in Python. In early stage of 
 
 ### Planned/In Progress
 * Optimize pose graph using g2o
-* LiDAR odometry using ICP
-* Save pointcloud as map
+* ICP and scan context for loop closure
+* Save pointcloud as map?
 
 Here is a screenshot of the LiDAR data as a rosbag, visualized using Webviz
 

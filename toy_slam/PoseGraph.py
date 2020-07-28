@@ -20,7 +20,9 @@ class PoseGraph(g2o.SparseOptimizer):
         v_se3.set_fixed(fixed)
         super().add_vertex(v_se3)
 
-    def add_edge(self, vertices, measurement,
+    def add_edge(self,
+                 vertices,
+                 measurement,
                  information=np.identity(6),
                  robust_kernel=None):
 
