@@ -1,5 +1,6 @@
 """
 ref: https://github.com/kissb2/PyICP-SLAM/blob/dc026afff934aa0867f1a67a5e5b01a145ce1109/utils/ScanContextManager.py
+ref: https://github.com/irapkaist/scancontext/blob/master/python/Distance_SC.py
 """
 
 import numpy as np
@@ -127,26 +128,30 @@ class ScanContext:
             ringkey_tree = spatial.KDTree(ringkey_history)
 
             ringkey_query = self.ringkeys[self.curr_node_idx]
-            _, nncandidates_idx = ringkey_tree.query(ringkey_query, k=self.num_candidates)
+            _, nn_idxs = ringkey_tree.query(ringkey_query, k=self.num_candidates)  # query for neearest neighbors
 
             # step 2
             query_sc = self.scan_contexts[self.curr_node_idx]
 
             nn_dist = 1.0  # initialize with the largest value of distance
             nn_idx = None
-            nn_yawdiff = None
+            nn_yaw_diff = None
 
-            for ith in range(self.num_candidates):
-                candidate_idx = nncandidates_idx[ith]
+            # loop through all NN candidates
+            # and finding cloest neighbor, saving its scan
+            for i in range(self.num_candidates):
+                candidate_idx = nn_idxs[i]
                 candidate_sc = self.scan_contexts[candidate_idx]
                 dist, yaw_diff = self.scan_distance(candidate_sc, query_sc)
+
+                # update nearest neighbor
                 if dist < nn_dist:
                     nn_dist = dist
-                    nn_yawdiff = yaw_diff
+                    nn_yaw_diff = yaw_diff
                     nn_idx = candidate_idx
 
             if nn_dist < self.threshold:
-                nn_yawdiff_deg = nn_yawdiff * (360 / self.shape[1])
-                return nn_idx, nn_dist, nn_yawdiff_deg  # loop detected!
+                nn_yaw_diff_deg = nn_yaw_diff * (360 / self.shape[1])
+                return nn_idx, nn_dist, nn_yaw_diff_deg  # loop detected!
             else:
                 return None, None, None

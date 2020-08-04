@@ -1,5 +1,6 @@
 import os
 import argparse
+import DataLoader
 
 # Parse arguments
 parser = argparse.ArgumentParser()
@@ -11,7 +12,16 @@ args = parser.parse_args()
 
 lidar_dir = os.path.join(args.dir, "velodyne_points", "data")
 
-if args.color:      # color images
+if args.color:  # color images
     img_dir = os.path.join(args.dir, "image_02", "data")
-else:               # black and white images
+else:  # black and white images
     img_dir = os.path.join(args.dir, "image_00", "data")
+
+data = DataLoader(lidar_dir, show_img=True, color=False)
+
+for _ in range(data.size):
+    pcl_i = data.loadPCL()
+
+    """
+    Do work
+    """

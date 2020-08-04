@@ -24,8 +24,14 @@ class DataLoader:
         else:
             self.img_path = self.data_path / "/image_00/data"
 
+        self.size = 0
+        for _ in self.lidar_path.iterdir():
+            self.size += 1
+
     def loadPCL(self) -> np.array:
-        lidar_bin = np.fromfile(self.lidar_bin_path, dtype=np.float32)
+        current_bin = self.lidar_bin_path / str(self.idx)
+        self.idx += 1
+        lidar_bin = np.fromfile(current_bin, dtype=np.float32)
         lidar_bin = lidar_bin.reshape((-1, 4))
         pcl_xyz = lidar_bin[:, :-1]
         return pcl_xyz
