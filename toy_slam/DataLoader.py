@@ -13,7 +13,8 @@ class DataLoader:
         :param color        Flag to show colored images. False by default
         """
         self.data_path = Path(data_path)
-        self.lidar_path = self.data_path / "velodyne_points"
+        self.lidar_path = self.data_path
+        print(self.lidar_path)
         self.lidar_bin_path = self.lidar_path / "data"
 
         self.idx = idx
@@ -25,11 +26,12 @@ class DataLoader:
             self.img_path = self.data_path / "/image_00/data"
 
         self.size = 0
-        for _ in self.lidar_path.iterdir():
+        for _ in self.lidar_bin_path.iterdir():
             self.size += 1
 
     def loadPCL(self) -> np.array:
-        current_bin = self.lidar_bin_path / str(self.idx)
+        bin_name = str(self.idx).zfill(10) + ".bin"
+        current_bin = self.lidar_bin_path / bin_name
         self.idx += 1
         lidar_bin = np.fromfile(current_bin, dtype=np.float32)
         lidar_bin = lidar_bin.reshape((-1, 4))
@@ -39,3 +41,12 @@ class DataLoader:
     def __repr__(self):
         # return "a={0},b={1}".format(a, b)
         return "Data Path: , Current Index: ".format(self.data_path, self.idx)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.idx < self.size:
+            return self.loadPCL()
+        else:
+            raise StopIteration
