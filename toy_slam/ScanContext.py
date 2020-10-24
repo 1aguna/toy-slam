@@ -24,6 +24,9 @@ class ScanContext:
 
         self.curr_node_idx = 0
 
+    def xy2degrees(self, x, y):
+        return np.rad2deg(np.arctan2(y,x)) % 360
+
     def addNode(self, node_idx, pcl):
         sc = self.pcl2sc(pcl, self.shape, self.max_length)
         rk = self.scan2rk(sc)
@@ -43,8 +46,8 @@ class ScanContext:
         if (y == 0.0):
             y = 0.001
 
-        theta = xy2theta(x, y)
-        faraway = np.sqrt(x * x + y * y)
+        theta = self.xy2degrees(x, y)
+        faraway = np.sqrt(x**2 + y**2)
 
         idx_ring = np.divmod(faraway, gap_ring)[0]
         idx_sector = np.divmod(theta, gap_sector)[0]
@@ -90,28 +93,34 @@ class ScanContext:
     def scan_distance(self, scan1, scan2):
         num_sectors = scan1.shape[1]
 
-        # repeate to move 1 columns
-        _one_step = 1  # const
-        sim_for_each_cols = np.zeros(num_sectors)
+        # repeat to move 1 columns
+
+        # constants
+        STEP = 1 
+        EPSILON = 1e-10
+    
+        # store results for cos similarity for each col
+        similarity = np.zeros(num_sectors)
+
         for i in range(num_sectors):
-            # Shift
-            scan1 = np.roll(scan1, _one_step, axis=1)  # column shift
+            scan1 = np.roll(scan1, STEP, axis=1)  # column shift
 
             # compare
             cos_similarity_sum = 0
             n_cols = 0
             for j in range(num_sectors):
-                col_j_1 = scan1[:, j]
-                col_j_2 = scan2[:, j]
-                cos_similarity_sum = np.dot(col_j_1, col_j_2) / (np.linalg.norm(col_j_1) * np.linalg.norm(col_j_2))
+                colj_1 = scan1[:, j] + EPSILON # avoid divide by zero
+                colj_2 = scan2[:, j] + EPSILON # avoid divide by zero
 
+                # cos_similarity_sum += np.dot(colj_1, colj_2) / (np.linalg.norm(colj_1) * np.linalg.norm(colj_2))
+                cos_similarity_sum += spatial.distance.cosine(colj_1, colj_2)
                 n_cols += 1
 
             # save
-            sim_for_each_cols[i] = cos_similarity_sum / n_cols
+            similarity[i] = cos_similarity_sum / n_cols
 
-        yaw_diff = np.argmax(sim_for_each_cols) + 1  # because python starts with 0
-        sim = np.max(sim_for_each_cols)
+        yaw_diff = np.argmax(similarity) + 1 
+        sim = np.max(similarity)
         dist = 1 - sim
 
         return dist, yaw_diff
